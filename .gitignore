@@ -1,5 +1,7 @@
 # Compiled class file
 *.class
+build
+.gradle
 
 # Log file
 *.log
@@ -22,6 +24,8 @@ hs_err_pid*
 
 gradle.properties
 .idea
+*.iml
+
 out
 nest-api-jdk-publish
 
