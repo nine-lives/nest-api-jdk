@@ -24,3 +24,7 @@ gradle.properties
 .idea
 out
 nest-api-jdk-publish
+
+config/lib/*.jar
+config/checkstyle/*
+!config/checkstyle/checkstyle-suppressions.xml

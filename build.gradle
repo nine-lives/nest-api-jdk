@@ -1,133 +1,40 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'checkstyle'
-apply from: "$rootDir/coverage.gradle"
-
 Properties versionProperties = new Properties();
 versionProperties.load(new File(rootDir, "src/main/resources/version.properties").newInputStream())
-version = versionProperties.getProperty("version")
+
 group = 'com.9ls'
-archivesBaseName = "nest-api-jdk"
+version = versionProperties.getProperty("version")
 
-signing {
-    required { gradle.taskGraph.hasTask('uploadArchives') }
-    sign configurations.archives
+project.ext {
+    library_baseName = 'nest-api-jdk'
+
+    jacoco_limits = [
+            'instruction': 3,
+            'branch'     : 2,
+            'line'       : 3.5,
+            'complexity' : 1.5,
+            'method'     : 1.5,
+            'class'      : 7
+    ]
+
+    jacoco_codecy = true
+
+    publish_name = 'nest-api-jdk'
+    publish_description = 'Nest API Java Wrapper'
+    publish_url = 'https://github.com/nine-lives/nest-api-jdk'
+    publish_scm = 'scm:git@github.com:nine-lives/nest-api-jdk.git'
+    publish_license = 'https://raw.githubusercontent.com/nine-lives/nest-api-jdk/master/LICENSE'
+    publish_developerId = 'mgsmith57'
+    publish_developerName = 'Marc G. Smith'
+    publish_developerEmail = 'marc@9ls.com'
+    publish_credentialsUserName = project.hasProperty('ossrhUsername') ? ossrhUsername : ''
+    publish_credentialsPassword = project.hasProperty('ossrhPassword')? ossrhPassword : ''
 }
 
-repositories {
-    mavenCentral()
-}
+apply from: "https://raw.githubusercontent.com/nine-lives/gradle-scripts/main/v6/library.gradle"
 
 dependencies {
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.6'
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-//    compile 'org.apache.httpcomponents:httpclient:4.5.2'
-//    compile 'org.apache.httpcomponents:httpmime:4.5.2'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5'
 
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-3'
-
-    checkstyle('com.puppycrawl.tools:checkstyle:7.4')
-}
-
-checkstyle {
-    configFile = new File(rootDir, "config/checkstyle/checkstyle.xml")
-    showViolations = false
-}
-
-sourceSets {
-    integrationTest {
-        groovy {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/integration-test/groovy')
-        }
-        resources.srcDir file('src/integration-test/resources')
-    }
-}
-
-configurations {
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
-}
-
-task integrationTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }
-
-    jacoco {
-        append = true
-        destinationFile = file("$buildDir/jacoco/test.exec")
-    }
-}
-
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
-
-tasks.withType(Test) {
-    reports.html.destination = file("${reporting.baseDir}/${name}")
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from tasks.javadoc.destinationDir
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-artifacts {
-    archives jar
-    archives javadocJar
-    archives sourcesJar
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: project.hasProperty('ossrhUsername') ? ossrhUsername : '', password: project.hasProperty('ossrhPassword')? ossrhPassword : '')
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: (project.hasProperty('ossrhUsername') ? ossrhUsername : ''), password: (project.hasProperty('ossrhPassword')? ossrhPassword : ''))
-            }
-
-            pom.project {
-               name 'nest-api-jdk'
-               packaging 'jar'
-               description 'Nest API Java Wrapper'
-               url 'https://github.com/nine-lives/nest-api-jdk'
-
-               scm {
-                   url 'scm:git@github.com:nine-lives/nest-api-jdk.git'
-                   connection 'scm:git@github.com:nine-lives/nest-api-jdk.git'
-                   developerConnection 'scm:git@github.com:nine-lives/nest-api-jdk.git'
-               }
-
-               licenses {
-                   license {
-                       name 'The MIT License (MIT)'
-                       url 'https://raw.githubusercontent.com/nine-lives/nest-api-jdk/master/LICENSE'
-                       distribution 'repo'
-                   }
-               }
-
-               developers {
-                   developer {
-                       id 'mgsmith57'
-                       name 'Marc G. Smith'
-                       email 'marc@9ls.com'
-                   }
-               }
-           }
-        }
-    }
+    implementation 'com.squareup.okhttp3:okhttp:3.14.8'
 }

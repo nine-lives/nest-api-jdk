@@ -3,5 +3,6 @@
 <suppressions>
     <!-- relax rules in unit tests -->
     <suppress checks="FileLength_Error|AvoidStaticImport|ClassFanOutComplexity|ClassDataAbstractionCoupling|IllegalInstantiation|IllegalThrows|MagicNumber|MethodCount|ParameterNumber" files=".*Test.java"/>
-    <suppress checks="ClassDataAbstractionCoupling" files="com.skimtechnologies.client.HttpClient.java"/>
+    <suppress checks="NestedIfDepth|MemberName|SuppressWarnings|EmptyStatement" files="com.nls.nest.RealServerSentEvent.java"/>
+    <suppress checks="MethodCount" files="com.nls.nest.Thermostat.java"/>
 </suppressions>
